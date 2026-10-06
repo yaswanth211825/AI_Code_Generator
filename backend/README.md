@@ -16,10 +16,10 @@ The API runs at `http://localhost:8080`. Default local credentials match `servic
 
 The `seed.sh` step only needs to run once - it uploads the starter template new projects are cloned from (see [starter-template/README.md](starter-template/README.md)). Skipping it means project creation will fail with a `NoSuchBucket` error.
 
-To use the AI chat feature locally, set an API key before starting:
+To use the AI chat feature locally, set an OpenRouter API key with credit on it before starting (see [.env.example](.env.example) for why it needs to be OpenRouter specifically, not a direct Google/OpenAI key):
 
 ```bash
-export OPENROUTER_API_KEY=your-key-here
+export AI_API_KEY=your-openrouter-key-here
 ./mvnw spring-boot:run
 ```
 

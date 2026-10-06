@@ -20,8 +20,8 @@ spring:
 
   ai:
     openai:
-      api-key: ${OPENROUTER_API_KEY:}
-      base-url: ${OPENROUTER_BASE_URL:https://openrouter.ai/api}
+      api-key: ${AI_API_KEY:}
+      base-url: ${AI_BASE_URL:https://openrouter.ai/api}
       chat:
         options:
           model: ${AI_MODEL:google/gemini-3-flash-preview}
