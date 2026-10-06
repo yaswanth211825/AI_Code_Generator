@@ -20,6 +20,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.metadata.Usage;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 import tools.jackson.databind.deser.BasicDeserializerFactory;
@@ -103,11 +104,19 @@ public class AiGenerationServiceImpl implements AiGenerationService {
                         finalizeChats(userMessage, chatSession, fullResponseBuffer.toString(), duration, usageRef.get());
                     });
                 })
-                .doOnError(error -> log.error("Error during streaming for projectId: {}", projectId))
+                .doOnError(error -> log.error("Error during streaming for projectId: {}", projectId, error))
                 .map(response -> {
                     String text = response.getResult().getOutput().getText();
                     return new StreamResponse(text != null ? text : "");
-                });
+                })
+                .onErrorResume(error -> Flux.just(new StreamResponse(userFacingErrorMessage(error))));
+    }
+
+    private String userFacingErrorMessage(Throwable error) {
+        if (error instanceof WebClientResponseException wcre && wcre.getStatusCode().value() == 402) {
+            return "⚠️ The AI provider account is out of credits. Add credit to your OpenRouter account and try again.";
+        }
+        return "⚠️ Something went wrong talking to the AI provider. Please try again in a moment.";
     }
 
     private void finalizeChats(String userMessage, ChatSession chatSession, String fullText, Long duration, Usage usage) {
